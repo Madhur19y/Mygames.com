@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyGames.com</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #e3f2fd;
+      text-align: center;
+    }
+    header {
+      background: #1976d2;
+      color: #fff;
+      padding: 20px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .about-section {
+      margin: 20px auto;
+      padding: 15px;
+      width: 80%;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+    .about-section a {
+      font-size: 18px;
+      color: #1976d2;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .game-section {
+      margin-top: 20px;
+    }
+    canvas {
+      background: #ccc;
+      display: block;
+      margin: 20px auto;
+      border: 3px solid #333;
+    }
+    .controls button {
+      padding: 10px 30px;
+      font-size: 20px;
+      margin: 5px;
+      cursor: pointer;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+    .controls button:hover {
+      background: #0d47a1;
+    }
+    #score {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <header>🎮 Welcome to MyGames.com 🎮</header>
+
+  <!-- 👇 About Me Section 👇 -->
+  <div class="about-section">
+    <h2>🎮 Enjoy My Games 👍🥰</h2>
+    <p>Hlo, I am <strong>Monu Yadav</strong></p>
+    <p>This is my first gaming website 🚀</p>
+    <p>I am from <strong>Islamnagar (Badaun), Uttar Pradesh, India</strong></p>
+    <p>
+      This is my YouTube channel link 👇<br>
+      <a href="https://www.youtube.com/@monueditz9" target="_blank">
+        👉 Click here to visit my channel
+      </a>
+    </p>
+  </div>
+
+  <!-- 👇 Game Section 👇 -->
+  <div class="game-section">
+    <h2>🚗 MyCar Game</h2>
+
+    <!-- Play & Restart Buttons -->
+    <div class="controls">
+      <button id="playBtn" onclick="startGame()">▶️ Play</button>
+      <button id="restartBtn" style="display:none;" onclick="restartGame()">🔄 Restart</button>
+    </div>
+
+    <canvas id="gameCanvas" width="300" height="500"></canvas>
+
+    <!-- Left & Right Buttons -->
+    <div class="controls">
+      <button onclick="moveLeft()">⬅️ Left</button>
+      <button onclick="moveRight()">➡️ Right</button>
+    </div>
+
+    <div id="score">Score: 0</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreDisplay = document.getElementById("score");
+    const playBtn = document.getElementById("playBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let car = { x: 130, y: 400, width: 40, height: 70 };
+    let obstacles = [];
+    let speed = 2;
+    let score = 0;
+    let gameRunning = false;
+    let gameOver = false;
+    let animation;
+
+    function drawCar() {
+      ctx.fillStyle = "red";
+      ctx.fillRect(car.x, car.y, car.width, car.height);
+    }
+
+    function drawObstacles() {
+      ctx.fillStyle = "black";
+      obstacles.forEach(obs => {
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+      });
+    }
+
+    function updateObstacles() {
+      if (Math.random() < 0.02) {
+        let obsX = Math.floor(Math.random() * (canvas.width - 40));
+        obstacles.push({ x: obsX, y: -50, width: 40, height: 50 });
+      }
+      obstacles.forEach(obs => (obs.y += speed));
+      obstacles = obstacles.filter(obs => obs.y < canvas.height + 50);
+    }
+
+    function detectCollision() {
+      for (let obs of obstacles) {
+        if (
+          car.x < obs.x + obs.width &&
+          car.x + car.width > obs.x &&
+          car.y < obs.y + obs.height &&
+          car.y + car.height > obs.y
+        ) {
+          gameOver = true;
+        }
+      }
+    }
+
+    function moveLeft() {
+      if (gameRunning && car.x > 0) car.x -= 20;
+    }
+
+    function moveRight() {
+      if (gameRunning && car.x + car.width < canvas.width) car.x += 20;
+    }
+
+    function updateScore() {
+      score++;
+      scoreDisplay.textContent = "Score: " + score;
+    }
+
+    function gameLoop() {
+      if (!gameRunning) return;
+      if (gameOver) {
+        cancelAnimationFrame(animation);
+        ctx.fillStyle = "red";
+        ctx.font = "30px Arial";
+        ctx.fillText("Game Over!", 80, 250);
+        playBtn.style.display = "none";
+        restartBtn.style.display = "inline-block";
+        return;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCar();
+      drawObstacles();
+      updateObstacles();
+      detectCollision();
+      updateScore();
+
+      animation = requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+      playBtn.style.display = "none";
+      restartBtn.style.display = "none";
+      score = 0;
+      scoreDisplay.textContent = "Score: 0";
+      obstacles = [];
+      car.x = 130;
+      gameOver = false;
+      gameRunning = true;
+      gameLoop();
+    }
+
+    function restartGame() {
+      startGame();
+    }
+  </script>
+</body>
+</html>
